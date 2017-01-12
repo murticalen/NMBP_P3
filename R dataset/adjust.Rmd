@@ -1,0 +1,39 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+options(repos = "http://cran.rapporter.net/")
+install.packages('RMongo')
+library("tidyverse")
+library("stringr")
+library("RMongo")
+library("lubridate")
+
+reviews <- read.csv("reviews.csv", stringsAsFactors = F, encoding="UTF-8")
+reviews$number <- as.numeric(str_extract(reviews$userop, "\\d{1,}"))
+reviews$title <- str_c(reviews$location, reviews$quote, reviews$rating, sep = " - ")
+filter(reviews, str_detect(reviewnospace, pattern = ";") == F & str_length(reviewnospace) > 1200 & str_length(reviewnospace) < 1800 & is.na(location) == F & location != "") %>% sample_n(50) %>% select(id, username, title, date, reviewnospace, titleopinion) -> reviews
+backup <- reviews
+
+reviews <- backup
+authors <- c("Tom Brady", "Al Davis", "Adam Schaefter", "Bill O'Brien", "Joe Flacco", "Jim Harbaugh")
+reviews$author <- sample(authors,50, replace = TRUE)
+reviews$date <- dmy(reviews$date)
+
+reviews <- select(reviews, author, title, date, reviewnospace)
+reviews
+reviews$reviewnospace <- str_replace(reviews$reviewnospace, ";", "...")
+write.csv2(reviews, file = "data.csv", row.names=FALSE, sep = ";")
+
+?RMongo
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
